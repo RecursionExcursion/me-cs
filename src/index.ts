@@ -1,18 +1,16 @@
- import express, { Application, Request, Response, NextFunction } from 'express';
-    import dotenv from 'dotenv';
+import express, { Application } from "express";
+import dotenv from "dotenv";
+import cfbrController from "./routes/cfbr/cfbrController";
 
-    dotenv.config();
-    
-    // Boot express
-    const app: Application = express();
-    const PORT = process.env.PORT;
-    app.use(express.json());
-    
-    // Application routing
-    app.use('/', (req: Request, res: Response, next: NextFunction ) => {
-        res.status(200).send({data: 'Hello World!'});
-    });
-    
-    // Start server
-    app.listen(PORT, () => console.log(`Server is listening on PORT: ${PORT}!`));
-     
+dotenv.config();
+
+// Boot express
+const app: Application = express();
+const PORT = process.env.PORT;
+app.use(express.json());
+
+// Application routing
+app.use("/cfbr", cfbrController);
+
+// Start server
+app.listen(PORT, () => console.log(`Server is listening on PORT: ${PORT}!`));
