@@ -1,3 +1,11 @@
+import { Match } from "./game";
+
+export type Team = {
+  id: number;
+  school: School;
+  schedule: Match[];
+};
+
 export type School = {
   id: number;
   school: string;
