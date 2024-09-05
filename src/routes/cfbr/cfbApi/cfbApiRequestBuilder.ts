@@ -1,7 +1,8 @@
 export type SeasonType = "regular" | "postseason";
 export type Division = "fbs" | "fcs" | "ii" | "iii";
 
-export class CfbApiQueryManager {
+export class CfbApiRequestBuilder {
+  /* Could move all this to constructor to make this more generic and reuseable */
   private baseRoute = "https://api.collegefootballdata.com";
 
   private teamsRoute = `/teams/fbs`;
@@ -15,8 +16,16 @@ export class CfbApiQueryManager {
   }
 
   public async getTeams() {
-    const teamsQuery = this.teamsRoute + `?year=${this.year}`;
-    const path = this.appendToBase(teamsQuery);
+    const queryParams = {
+      year: `year=${this.year}`,
+    };
+
+    const path = RequestStringBuilder.create(
+      this.baseRoute,
+      this.teamsRoute,
+      queryParams
+    );
+
     return await this.fetchRoute(path);
   }
 
@@ -27,9 +36,12 @@ export class CfbApiQueryManager {
       seasonType: `seasonType=${seasonType ?? "regular"}`,
     };
 
-    const queryString = `?${Object.values(queryParams).join("&")}`;
+    const path = RequestStringBuilder.create(
+      this.baseRoute,
+      this.gamesRoute,
+      queryParams
+    );
 
-    const path = this.appendToBase(this.gamesRoute + queryString);
     return this.fetchRoute(path);
   }
 
@@ -39,13 +51,13 @@ export class CfbApiQueryManager {
       week: `week=${week}`,
       seasonType: `seasonType=${seasonType ?? "regular"}`,
     };
-    const queryString = `?${Object.values(queryParams).join("&")}`;
-    const path = this.appendToBase(this.statsRoute + queryString);
-    return this.fetchRoute(path);
-  }
 
-  private appendToBase(route: string) {
-    return `${this.baseRoute}${route}`;
+    const path = RequestStringBuilder.create(
+      this.baseRoute,
+      this.statsRoute,
+      queryParams
+    );
+    return this.fetchRoute(path);
   }
 
   private async fetchRoute(route: string) {
@@ -54,5 +66,24 @@ export class CfbApiQueryManager {
         Authorization: `Bearer ${process.env.CFB_DATA_API_KEY}`,
       },
     });
+  }
+}
+
+class RequestStringBuilder {
+  public static create(
+    baseRoute: string,
+    route: string,
+    queryParams: Record<string, string>
+  ) {
+    const queryString = this.createQueryString(queryParams);
+    return this.appendRoutes(baseRoute, route, queryString);
+  }
+
+  private static createQueryString(params: Record<string, string>) {
+    return `?${Object.values(params).join("&")}`;
+  }
+
+  private static appendRoutes(...routes: string[]) {
+    return routes.join("");
   }
 }
