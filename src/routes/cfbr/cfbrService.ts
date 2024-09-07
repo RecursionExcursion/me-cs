@@ -1,12 +1,5 @@
-import { CfbApiDataFetcher } from "./cfbApi/CfbApiDataFetcher";
+import { Season } from "./cfbApi/season";
 
 export const getAllTeams = async () => {
-  const teamMap = await CfbApiDataFetcher.collectSeasonData(2024);
-
-  const testTeam = teamMap.get(52);
-
-  testTeam?.schedule.forEach((match) => {
-    console.log(match);
-  });
-  console.log(testTeam?.schedule[0].gameStats);
+  Season.CreateSeason(2024);
 };

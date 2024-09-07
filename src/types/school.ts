@@ -1,9 +1,7 @@
-import { Match } from "./game";
-
 export type Team = {
   id: number;
   school: School;
-  schedule: Match[];
+  schedule: number[];
 };
 
 export type School = {

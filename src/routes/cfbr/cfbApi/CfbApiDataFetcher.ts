@@ -12,9 +12,9 @@ export class CfbApiDataFetcher {
     const teams = await teamsRes.json();
 
     const teamMap = TeamBuilder.mapToTeams(teams);
-    const lastWeek = TeamBuilder.addGamesToTeams(games, teamMap);
-    await TeamBuilder.addStats(teamMap, lastWeek, cfbRb);
-   
-    return teamMap;
+    const gamesData = await TeamBuilder.mapToGameData(games, cfbRb);
+    TeamBuilder.addGamesToTeamSchedules(teamMap, gamesData);
+
+    return { teamMap, gamesData };
   }
 }

@@ -1,15 +1,15 @@
-export type Match = {
+export type GameData = {
   id: number;
   game: Game;
-  gameStats: GameStats;
+  gameStats: GameStats | undefined;
 };
 
 export type GameStats = {
   id: number;
-  teams: Team[];
+  teams: GameTeam[];
 };
 
-export type Team = {
+export type GameTeam = {
   schoolId: number;
   school: string;
   conference: string;

@@ -1,4 +1,6 @@
-export type Season = {
-    year: number;
-    
-};
+// import { GameData } from "./game";
+// import { Team } from "./school";
+
+// export type Season = {
+ 
+// };
