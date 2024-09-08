@@ -1,8 +1,16 @@
-export type Team = {
+export class Team {
   id: number;
   school: School;
   schedule: number[];
-};
+  stats: SeasonStats;
+
+  constructor(school: School) {
+    this.id = school.id;
+    this.school = school;
+    this.schedule = [];
+    this.stats = createStats();
+  }
+}
 
 export type School = {
   id: number;
@@ -37,3 +45,19 @@ export type SchoolLocation = {
   grass: boolean;
   dome: boolean;
 };
+
+export type SeasonStats = {
+  totalOffense: number;
+  totalDefense: number;
+  pointsFor: number;
+  pointsAllowed: number;
+};
+
+function createStats(): SeasonStats {
+  return {
+    totalOffense: 0,
+    totalDefense: 0,
+    pointsFor: 0,
+    pointsAllowed: 0,
+  };
+}

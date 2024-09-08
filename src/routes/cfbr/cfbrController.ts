@@ -3,8 +3,8 @@ import { getAllTeams } from "./cfbrService";
 
 const router = express.Router();
 
-router.get("/", (req, res) => {
-  getAllTeams();
+router.get("/", async (req, res) => {
+  await getAllTeams();
   res.status(200).send({ data: "Hello from cfbr!" });
 });
 
