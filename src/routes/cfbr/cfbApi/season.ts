@@ -1,23 +1,26 @@
 import { GameData } from "../../../types/game";
 import { CfbApiDataAccessor } from "./CfbApiDataFetcher";
 import compileWeekStats from "./statCompiler";
+import { StatRanker } from "./StatRanker";
+import { StatWeights } from "./stats";
 import { Team } from "./Team";
 
 export type SeasonTeams = Map<number, Team>;
 export type SeasonGames = Map<number, GameData>;
-type SeasonWeek = SeasonTeams[];
 
 export class Season {
   private year: number;
   private teams: SeasonTeams;
   private games: SeasonGames;
-  private weeks: SeasonWeek;
+  private weeks: SeasonTeams[];
+  private rankedWeeks: Team[][];
 
   private constructor(year: number, teams: SeasonTeams, games: SeasonGames) {
     this.year = year;
     this.teams = teams;
     this.games = games;
     this.weeks = [];
+    this.rankedWeeks = [];
   }
 
   public static async CreateSeason(year: number) {
@@ -30,6 +33,8 @@ export class Season {
 
   public getWeeks = () => this.weeks;
   public getWeek = (week: number) => this.weeks[week - 1];
+  public getRankedWeeks = () => this.rankedWeeks;
+  public getRankedWeek = (week: number) => this.rankedWeeks[week - 1];
   public findTeamById = (id: number) => this.teams.get(id);
   public findGameById = (id: number) => this.games.get(id);
   public findTeamByName(search: string) {
@@ -49,15 +54,21 @@ export class Season {
     });
   }
 
-  public rankTeams() {
+  public rankTeams(weights: StatWeights) {
     this.compileStats();
+    const ranker = new StatRanker(this.weeks, weights);
+    ranker.rankSeason();
   }
 
   private compileStats() {
+    const completedGames = Array.from(this.games.values()).filter(
+      (g) => g.game.completed
+    );
+
     this.weeks = [];
     for (let i = 1; i <= 2; i++) {
-      //TODO: Filtering each iteration, very inefficient, but may not really matter
-      compileWeekStats(i, this.teams, this.games);
+      const weekGames = completedGames.filter((g) => g.game.week === i);
+      compileWeekStats(this.teams, weekGames);
       this.weeks.push(structuredClone(this.teams));
     }
   }

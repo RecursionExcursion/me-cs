@@ -1,10 +1,7 @@
 import { Season } from "./cfbApi/Season";
+import { StatWeights } from "./cfbApi/stats";
 
-export const getAllTeams = async () => {
+export const getAllTeams = async (weights: StatWeights) => {
   const season = await Season.CreateSeason(2024);
-  season.rankTeams();
-  const testTeam = season.findTeamByName("mich");
-  console.log(testTeam);
-  console.log(season.getWeek(1).get(130));
-  console.log(season.getWeek(2).get(130));
+  season.rankTeams(weights);
 };

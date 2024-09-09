@@ -1,27 +1,19 @@
 import { GameData } from "../../../types/game";
-import { SeasonGames, SeasonTeams } from "./Season";
+import { SeasonTeams } from "./Season";
+import { RankableStats } from "./stats";
 
-type CollectedTeamStats = {
+export type CollectedTeamStats = RankableStats & {
   teamId: number;
-  offense: number;
-  defense: number;
-  pointsFor: number;
-  pointsAllowed: number;
 };
 
 export default function compileWeekStats(
-  week: number,
   teams: SeasonTeams,
-  games: SeasonGames
+  games: GameData[]
 ) {
-  const weekGames = Array.from(games.values()).filter(
-    (g) => g.game.week === week
-  );
-
-  weekGames.forEach((wg) => {
-    const stats = compileGameStats(wg);
+  games.forEach((game) => {
+    const stats = compileGameStats(game);
     if (!stats) {
-      console.log(`No stats found for ${wg.id}`);
+      console.log(`No stats found for ${game.id}`);
       return;
     }
 
@@ -72,8 +64,8 @@ function addStats(teams: SeasonTeams, stats: CollectedTeamStats) {
   const mapTeam = teams.get(stats.teamId);
   if (!mapTeam) return;
 
-  mapTeam.stats.totalOffense += stats.offense;
-  mapTeam.stats.totalDefense += stats.defense;
+  mapTeam.stats.offense += stats.offense;
+  mapTeam.stats.defense += stats.defense;
   mapTeam.stats.pointsFor += stats.pointsFor;
   mapTeam.stats.pointsAllowed += stats.pointsAllowed;
 }

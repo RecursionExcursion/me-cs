@@ -1,8 +1,11 @@
+import { RankableStats } from "./stats";
+
 export class Team {
   id: number;
   school: School;
   schedule: number[];
-  stats: SeasonStats;
+  stats: RankableStats;
+  weight: number | undefined;
 
   constructor(school: School) {
     this.id = school.id;
@@ -46,17 +49,10 @@ export type SchoolLocation = {
   dome: boolean;
 };
 
-export type SeasonStats = {
-  totalOffense: number;
-  totalDefense: number;
-  pointsFor: number;
-  pointsAllowed: number;
-};
-
-function createStats(): SeasonStats {
+function createStats(): RankableStats {
   return {
-    totalOffense: 0,
-    totalDefense: 0,
+    offense: 0,
+    defense: 0,
     pointsFor: 0,
     pointsAllowed: 0,
   };
