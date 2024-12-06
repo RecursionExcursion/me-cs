@@ -1,9 +1,9 @@
-import { Game, GameData, GameStats } from "../../types/game";
-import { School, Team } from "../../types/Team";
-import { cache } from "../cache/cache";
-import { getLastWeekPlayed } from "../util/helpers";
-import { cfbApiRequests } from "./cfbApiReq";
-import { SeasonGames, SeasonTeams } from "./Season";
+import { Game, GameData, GameStats } from "../../../types/game";
+import { School, Team } from "../../../types/Team";
+import { cache } from "../../cache/cachingService";
+import { getLastWeekPlayed } from "../../util/helpers";
+import { fetchSeasonData } from "./fetchSeasonData";
+import { SeasonGames, SeasonTeams } from "../Season";
 
 export async function generateSeasonData(year: number) {
   //TODO Inject caching logic
@@ -16,7 +16,7 @@ export async function generateSeasonData(year: number) {
     ({ teams, games, stats } = c.load(year));
   } else {
     //Cache has no data
-    ({ games, teams, stats } = await cfbApiRequests(year));
+    ({ games, teams, stats } = await fetchSeasonData(year));
 
     c.save(
       {

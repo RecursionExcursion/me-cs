@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import cfbrService from "./cfbrService";
-import { cache } from "../../lib/cache/cache";
+import { cache } from "../../lib/cache/cachingService";
 
 export const getTeams = async (req: Request, res: Response) => {
   const teams = await cfbrService.getAllTeams(2024);

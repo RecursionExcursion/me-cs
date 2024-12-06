@@ -2,7 +2,7 @@ import { GameData } from "../../types/game";
 import { StatRanker } from "../old/cfbApi/StatRanker";
 import { StatWeights } from "../../types/stats";
 import { Team } from "../../types/Team";
-import { generateSeasonData } from "./dataRetrievalService";
+import { generateSeasonData } from "./data/dataRetrievalService";
 import { StatCompiler } from "./StatCompiler";
 
 export type SeasonTeams = Map<number, Team>;

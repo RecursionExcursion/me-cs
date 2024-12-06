@@ -1,7 +1,7 @@
-import { getLastWeekPlayed } from "../util/helpers";
+import { getLastWeekPlayed } from "../../util/helpers";
 import { CfbApiRequestExecutor } from "./CfbApiRequestExecutor";
 
-export async function cfbApiRequests(year: number) {
+export async function fetchSeasonData(year: number) {
   const cfbRb = new CfbApiRequestExecutor(year);
   const gamesRes = await cfbRb.getGames();
   const teamsRes = await cfbRb.getTeams();
