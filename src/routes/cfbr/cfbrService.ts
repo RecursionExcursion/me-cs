@@ -1,17 +1,31 @@
-import { cache } from "../../lib/cache/cache";
-import { Season } from "../../lib/old/cfbr/Season";
+import { Season } from "../../lib/cfbr/Season";
 import { StatWeights } from "../../types/stats";
 
 const cfbrService = {
-  async getAllTeams(year: 2024) {
-    const season = await cache().get(year);
-
+  async getAllTeams(year: number) {
+    const season = await Season.CreateSeason(year);
     return season.getTeams();
+  },
+
+  async getTeam(teamName: string, year: number) {
+    const season = await Season.CreateSeason(year);
+    return season.findTeamByName(teamName);
+  },
+
+  async getGame(gameId: number, year: 2024) {
+    const season = await Season.CreateSeason(year);
+    return season.findGameById(gameId);
   },
 
   async rankTeams(weights: StatWeights) {
     const season = await Season.CreateSeason(2024);
     season.rankTeams(weights);
+  },
+
+  async getStats(year: number) {
+    const season = await Season.CreateSeason(year);
+    const weeks = season.compileStats();
+    return weeks;
   },
 };
 

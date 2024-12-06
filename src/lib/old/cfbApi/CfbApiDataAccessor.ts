@@ -1,6 +1,6 @@
 import { Game, GameData, GameStats } from "../../../types/game";
-import { CfbApiRequestExecutor } from "../cfbr/CfbApiRequestExecutor";
-import { SeasonGames, SeasonTeams } from "../cfbr/Season";
+import { CfbApiRequestExecutor } from "../../cfbr/CfbApiRequestExecutor";
+import { SeasonGames, SeasonTeams } from "../../cfbr/Season";
 import { School, Team } from "../../../types/Team";
 
 export class CfbApiDataAccessor {

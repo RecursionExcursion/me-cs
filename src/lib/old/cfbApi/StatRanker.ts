@@ -1,6 +1,10 @@
 import { logTeams } from "../../../util/logger";
-import { SeasonTeams } from "../cfbr/Season";
-import { iterableRankingStats, RankableStats, StatWeights } from "../../../types/stats";
+import { SeasonTeams } from "../../cfbr/Season";
+import {
+  iterableRankingStats,
+  RankableStats,
+  StatWeights,
+} from "../../../types/stats";
 import { Team } from "../../../types/Team";
 
 export class StatRanker {
@@ -50,14 +54,14 @@ export class StatRanker {
           i++;
           if (i < teams.length - 1) {
             const nextTeam = teams[i];
-            if (currentTeam.stats[stat] !== nextTeam.stats[stat]) {
+            if (currentTeam.stats.stats[stat] !== nextTeam.stats.stats[stat]) {
               rankingIndex = i;
             }
           }
 
           if (stat === "pointsAllowed") {
             console.log(
-              `Weighted (${i}) ${currentTeam.school.abbreviation} PA-${currentTeam.stats.pointsAllowed} as ${statWeight}`
+              `Weighted (${i}) ${currentTeam.school.abbreviation} PA-${currentTeam.stats.stats.pointsAllowed} as ${statWeight}`
             );
           }
 
@@ -87,13 +91,15 @@ export class StatRanker {
   private static compare(stat: keyof RankableStats, teamA: Team, teamB: Team) {
     switch (stat) {
       case "offense":
-        return teamB.stats.offense - teamA.stats.offense;
+        return teamB.stats.stats.offense - teamA.stats.stats.offense;
       case "defense":
-        return teamA.stats.defense - teamB.stats.defense;
+        return teamA.stats.stats.defense - teamB.stats.stats.defense;
       case "pointsFor":
-        return teamB.stats.pointsFor - teamA.stats.pointsFor;
+        return teamB.stats.stats.pointsFor - teamA.stats.stats.pointsFor;
       case "pointsAllowed":
-        return teamA.stats.pointsAllowed - teamB.stats.pointsAllowed;
+        return (
+          teamA.stats.stats.pointsAllowed - teamB.stats.stats.pointsAllowed
+        );
       default:
         throw new Error(`Comparison for stat-${stat} not implemented`);
     }

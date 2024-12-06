@@ -1,5 +1,5 @@
 import { GameData } from "../../../types/game";
-import { SeasonTeams } from "../cfbr/Season";
+import { SeasonTeams } from "../../cfbr/Season";
 import { RankableStats } from "../../../types/stats";
 
 export type CollectedTeamStats = RankableStats & {

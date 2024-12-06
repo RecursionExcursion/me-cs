@@ -1,12 +1,13 @@
-import { GameData } from "../../../types/game";
-import compileWeekStats from "../cfbApi/statCompiler";
-import { StatRanker } from "../cfbApi/StatRanker";
-import { StatWeights } from "../../../types/stats";
-import { Team } from "../../../types/Team";
+import { GameData } from "../../types/game";
+import { StatRanker } from "../old/cfbApi/StatRanker";
+import { StatWeights } from "../../types/stats";
+import { Team } from "../../types/Team";
 import { generateSeasonData } from "./dataRetrievalService";
+import { StatCompiler } from "./StatCompiler";
 
 export type SeasonTeams = Map<number, Team>;
 export type SeasonGames = Map<number, GameData>;
+// export type CachableTeams = Map<number, CachableTeam>;
 
 export class Season {
   #year: number;
@@ -62,23 +63,27 @@ export class Season {
     });
   }
 
+  //TODO pull out of this object
   public rankTeams(weights: StatWeights) {
     this.compileStats();
     const ranker = new StatRanker(this.weeks, weights);
     ranker.rankSeason();
   }
 
-  private compileStats() {
-    const completedGames = Array.from(this.#games.values()).filter(
-      (g) => g.game.completed
-    );
+  compileStats() {
+    const compiler = new StatCompiler(this.#teams, this.#games);
+    return compiler.compileStats();
 
-    this.weeks = [];
+    //   const completedGames = Array.from(this.#games.values()).filter(
+    //   (g) => g.game.completed
+    // );
 
-    for (let i = 1; i <= 2; i++) {
-      const weekGames = completedGames.filter((g) => g.game.week === i);
-      compileWeekStats(this.#teams, weekGames);
-      this.weeks.push(structuredClone(this.#teams));
-    }
+    // this.weeks = [];
+
+    // for (let i = 1; i <= 2; i++) {
+    //   const weekGames = completedGames.filter((g) => g.game.week === i);
+    //   compileWeekStats(this.#teams, weekGames);
+    //   this.weeks.push(structuredClone(this.#teams));
+    // }
   }
 }

@@ -1,77 +1,58 @@
 import fs from "fs";
 import path from "path";
-import { Season } from "../old/cfbr/Season";
-import { Cache } from "./cache";
+import { Cache } from "./cacheInterface";
 
 const WORKING_DIR = process.cwd();
 const LOCAL_CACHE_FOLDER = "localCache";
 
-const inMemoryCache = {
-  season: new Map<number, Season>(),
+type CachableResponse = {
+  games: unknown;
+  teams: unknown;
+  stats: unknown;
 };
 
-export class LocalCache implements Cache {
+const inMemoryCache = {
+  season: new Map<number, CachableResponse>(),
+};
+
+export class LocalCache implements Cache<number, CachableResponse> {
   #CACHE_DIR = path.resolve(WORKING_DIR, LOCAL_CACHE_FOLDER);
 
   constructor() {
-    this.#initDir();
+    this.#init();
   }
 
-  public async get(year: number) {
-    //Not found in inMemCache
-    if (!inMemoryCache.season.has(year)) {
-      //Check if in fs
-      if (!this.#seasonExistsInCache(year)) {
-        console.log(`Season ${year} not found`);
-        console.log("Caching...");
-        //Season creation, this could be abstracted away if cache is to only handle storage/retrieval
-
-        //Save to fs
-        this.#cacheSeason(await Season.CreateSeason(year));
-      }
-
-      console.log(`Retrieving ${year} season from fs`);
-      console.log(`Saving to mem cache`);
-      //load into mem cache
-      inMemoryCache.season.set(year, this.#retrieveSeason(year));
-    }
-
-    console.log(`Getting ${year} from mem cache`);
-
-    //Get from mem cache
-    return inMemoryCache.season.get(year)!;
+  public getVirtualCache() {
+    return inMemoryCache;
   }
 
-  #initDir() {
+  #init() {
     if (!fs.existsSync(this.#CACHE_DIR)) {
       fs.mkdirSync(this.#CACHE_DIR);
     }
   }
 
-  #cacheSeason(season: Season) {
+  check(key: number): boolean {
+    return fs.existsSync(path.resolve(this.#CACHE_DIR, `${key}.json`));
+  }
+
+  save(data: CachableResponse, name: string): void {
     fs.writeFileSync(
-      path.resolve(this.#CACHE_DIR, `${season.getYear()}.json`),
-      season.toJson(),
+      path.resolve(this.#CACHE_DIR, `${name}.json`),
+      JSON.stringify(data),
       "utf-8"
     );
   }
 
-  #seasonExistsInCache(year: number): boolean {
-    return fs.existsSync(path.resolve(this.#CACHE_DIR, `${year}.json`));
-  }
+  load(key: number) {
+    if (!inMemoryCache.season.has(key)) {
+      const data = fs.readFileSync(
+        path.resolve(this.#CACHE_DIR, `${key}.json`),
+        "utf-8"
+      );
+      inMemoryCache.season.set(key, JSON.parse(data));
+    }
 
-  #retrieveSeason(year: number) {
-    const data = fs.readFileSync(
-      path.resolve(this.#CACHE_DIR, `${year}.json`),
-      "utf-8"
-    );
-
-    const plainSeason = JSON.parse(data);
-
-    return new Season(
-      year,
-      new Map(plainSeason.teams),
-      new Map(plainSeason.games)
-    );
+    return inMemoryCache.season.get(key)!;
   }
 }

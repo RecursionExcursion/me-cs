@@ -1,18 +1,35 @@
-import { Game, GameData, GameStats } from "../../../types/game";
-import { School, Team } from "../../../types/Team";
-import { CfbApiRequestExecutor } from "./CfbApiRequestExecutor";
+import { Game, GameData, GameStats } from "../../types/game";
+import { School, Team } from "../../types/Team";
+import { cache } from "../cache/cache";
+import { getLastWeekPlayed } from "../util/helpers";
+import { cfbApiRequests } from "./cfbApiReq";
 import { SeasonGames, SeasonTeams } from "./Season";
 
 export async function generateSeasonData(year: number) {
-  const cfbRb = new CfbApiRequestExecutor(year);
-  const gamesRes = await cfbRb.getGames();
-  const teamsRes = await cfbRb.getTeams();
+  //TODO Inject caching logic
+  const c = cache();
 
-  const games = await gamesRes.json();
-  const teams = await teamsRes.json();
+  let games, teams, stats;
+
+  if (c.check(year)) {
+    //Cache has data
+    ({ teams, games, stats } = c.load(year));
+  } else {
+    //Cache has no data
+    ({ games, teams, stats } = await cfbApiRequests(year));
+
+    c.save(
+      {
+        games,
+        teams,
+        stats,
+      },
+      year.toString()
+    );
+  }
 
   const teamMap = mapToTeams(teams);
-  const gamesData = await mapToGameData(games, cfbRb);
+  const gamesData = await mapToGameData(games, stats as GameStats[][]);
   addGamesToTeamSchedules(teamMap, gamesData);
 
   return { teamMap, gamesData };
@@ -25,26 +42,14 @@ function mapToTeams(data: School[]): SeasonTeams {
     .forEach((team: Team) => teamMap.set(team.id, team));
   return teamMap;
 }
+
 async function mapToGameData(
   gamesData: Game[],
-  rb: CfbApiRequestExecutor
+  statsByWeek: GameStats[][]
 ): Promise<SeasonGames> {
   const seasonGames = new Map<number, GameData>();
 
-  let latestCompletedWeek = 0;
-  gamesData.forEach((game: Game) => {
-    if (game.completed) {
-      latestCompletedWeek = Math.max(latestCompletedWeek, game.week);
-    }
-  });
-
-  const statsByWeek: GameStats[][] = [];
-
-  for (let i = 1; i <= latestCompletedWeek; i++) {
-    const statsRes = await rb.getStats(i);
-    const stats = await statsRes.json();
-    statsByWeek.push(stats);
-  }
+  const latestCompletedWeek = getLastWeekPlayed(gamesData);
 
   gamesData
     .map((game: Game) => {
