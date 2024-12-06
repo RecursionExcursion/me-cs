@@ -1,11 +1,11 @@
 import { Game, GameData, GameStats } from "../../../types/game";
-import { CfbApiRequestBuilder } from "./CfbApiRequestBuilder";
-import { SeasonGames, SeasonTeams } from "./Season";
-import { School, Team } from "./Team";
+import { CfbApiRequestExecutor } from "../cfbr/CfbApiRequestExecutor";
+import { SeasonGames, SeasonTeams } from "../cfbr/Season";
+import { School, Team } from "../../../types/Team";
 
 export class CfbApiDataAccessor {
   public static async generateSeasonData(year: number) {
-    const cfbRb = new CfbApiRequestBuilder(year);
+    const cfbRb = new CfbApiRequestExecutor(year);
 
     const gamesRes = await cfbRb.getGames();
     const teamsRes = await cfbRb.getTeams();
@@ -30,7 +30,7 @@ export class CfbApiDataAccessor {
 
   private static async mapToGameData(
     gamesData: Game[],
-    rb: CfbApiRequestBuilder
+    rb: CfbApiRequestExecutor
   ): Promise<SeasonGames> {
     const seasonGames = new Map<number, GameData>();
 

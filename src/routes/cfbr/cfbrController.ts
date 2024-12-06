@@ -1,19 +1,25 @@
-import express from "express";
-import { getAllTeams } from "./cfbrService";
-import { StatWeights } from "./cfbApi/stats";
+import { Request, Response } from "express";
+import cfbrService from "./cfbrService";
+import { cache } from "../../lib/cache/cache";
 
-const router = express.Router();
+export const getTeams = async (req: Request, res: Response) => {
+  const teams = await cfbrService.getAllTeams(2024);
+  res.status(200).send({ teams: Array.from(teams.entries()) });
+};
 
-router.get("/", async (req, res) => {
-  const placeholderWeights: StatWeights = {
-    offense: 1,
-    defense: 1,
-    pointsAllowed: 1,
-    pointsFor: 1,
-  };
+// export async function getRankings(req: Request, res: Response) {
+//   const placeholderWeights: StatWeights = {
+//     offense: 1,
+//     defense: 1,
+//     pointsAllowed: 1,
+//     pointsFor: 1,
+//   };
 
-  await getAllTeams(placeholderWeights);
-  res.status(200).send({ data: "Hello from cfbr!" });
-});
+//   await cfbrService.rankTeams(placeholderWeights);
+// }
 
-export default router;
+export const test = async (req: Request, res: Response) => {
+  cache();
+
+  res.status(200).send("Test");
+};

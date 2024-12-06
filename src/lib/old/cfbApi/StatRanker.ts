@@ -1,6 +1,7 @@
-import { Season, SeasonTeams } from "./Season";
-import { iterableRankingStats, RankableStats, StatWeights } from "./stats";
-import { Team } from "./Team";
+import { logTeams } from "../../../util/logger";
+import { SeasonTeams } from "../cfbr/Season";
+import { iterableRankingStats, RankableStats, StatWeights } from "../../../types/stats";
+import { Team } from "../../../types/Team";
 
 export class StatRanker {
   private weeks: SeasonTeams[];
@@ -34,16 +35,35 @@ export class StatRanker {
     //TODO Need to handle tied stats
     rankingMapsArray.forEach((rankMap) => {
       Array.from(rankMap.entries()).forEach((e) => {
-        e[1].forEach((team, i) => {
-          const statWeight = this.weights[e[0]];
+        const stat = e[0];
+        const teams = e[1];
 
-          if (!team.weight) {
-            team.weight = 0;
+        let rankingIndex = 0;
+
+        for (let i = 0; i < teams.length; ) {
+          const currentTeam = teams[i];
+          const statWeight = this.weights[e[0]] * rankingIndex;
+
+          if (!currentTeam.weight) currentTeam.weight = 0;
+
+          currentTeam.weight += statWeight;
+          i++;
+          if (i < teams.length - 1) {
+            const nextTeam = teams[i];
+            if (currentTeam.stats[stat] !== nextTeam.stats[stat]) {
+              rankingIndex = i;
+            }
           }
+
+          if (stat === "pointsAllowed") {
+            console.log(
+              `Weighted (${i}) ${currentTeam.school.abbreviation} PA-${currentTeam.stats.pointsAllowed} as ${statWeight}`
+            );
+          }
+
           //Multiply statWeight by index in array (rank), first place gets 0 weight
           //Could make it 1 for a different take on the ranking system
-          team.weight += statWeight * i;
-        });
+        }
       });
     });
 
@@ -59,7 +79,9 @@ export class StatRanker {
       weightedRankings.push(rankedTeams);
     });
 
-    logTeams(weightedRankings[0]);
+    test(weightedRankings, rankingMapsArray);
+
+    return { weightedRankings, rankingMapsArray };
   }
 
   private static compare(stat: keyof RankableStats, teamA: Team, teamB: Team) {
@@ -78,18 +100,18 @@ export class StatRanker {
   }
 }
 
-const logTeams = (teams: Team[]) => {
-  teams.forEach((t, i) => {
-    console.log(
-      `(${i + 1}) ${t.school.abbreviation} ${t.weight} ${logStats(t)}`
-    );
-  });
-};
+const test = (
+  weightedRankings: Team[][],
+  rankingMapsArray: Map<keyof RankableStats, Team[]>[]
+) => {
+  logTeams(weightedRankings[0]);
 
-const logStats = (team: Team) => {
-  const statArr: string[] = [];
-  Object.entries(team.stats).forEach((statEntry) => {
-    statArr.push(`${statEntry[0]}(${statEntry[1]})`);
-  });
-  return statArr.join(" ");
+  console.log(rankingMapsArray[0].get("offense")?.findIndex((t) => t.id === 8));
+  console.log(rankingMapsArray[0].get("defense")?.findIndex((t) => t.id === 8));
+  console.log(
+    rankingMapsArray[0].get("pointsAllowed")?.findIndex((t) => t.id === 8)
+  );
+  console.log(
+    rankingMapsArray[0].get("pointsFor")?.findIndex((t) => t.id === 8)
+  );
 };

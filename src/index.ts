@@ -1,6 +1,6 @@
 import express, { Application } from "express";
 import dotenv from "dotenv";
-import cfbrController from "./routes/cfbr/cfbrController";
+import cfbrRoutes from "./routes/cfbr/cfbrRoutes";
 
 dotenv.config();
 
@@ -8,9 +8,13 @@ dotenv.config();
 const app: Application = express();
 const PORT = process.env.PORT;
 app.use(express.json());
+// app.use(compression());
 
 // Application routing
-app.use("/cfbr", cfbrController);
+app.use("/cfbr", cfbrRoutes);
 
 // Start server
 app.listen(PORT, () => console.log(`Server is listening on PORT: ${PORT}!`));
+
+//TODO Create win probability route
+//TODO Create betting line route
