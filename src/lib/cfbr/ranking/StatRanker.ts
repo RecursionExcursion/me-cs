@@ -9,93 +9,152 @@ import { Team } from "../../../types/Team";
 import { comparePerGame } from "./statComparitors";
 import { toPgRankingString } from "./rankingToString";
 
-export class StatRanker {
-  private weeks: SeasonTeams[];
-  private weights: PerGameStats;
+export function rankSeason(weeks: SeasonTeams[], weights: StatWeights) {
+  const rankingMapsArray = createRankingMapArray(weeks);
+  const weightedRankMap = weightRankMap(rankingMapsArray, weights);
+  const weightedWeeks = weightWeeks(weightedRankMap, weeks);
+  const weightedRankedWeeks = rankWeightedTeams(weightedWeeks);
 
-  constructor(weeks: SeasonTeams[], weights: StatWeights) {
-    this.weeks = weeks;
-    this.weights = totalWeightsToPerGame(weights);
-  }
+  //TODO Need to add strength of schedule and poll inertia
 
-  public rankSeason() {
-    //Generate maps for each stat- map of ranking arrays, with RankableStat keys as key
-    const rankingMapsArray: Map<keyof PerGameStats, Team[]>[] = [];
+  return {
+    // weightedRankings,
+    weightedWeeks: weightedRankedWeeks,
+    weightedWeeksSTR: weightedRankedWeeks.map((wk) => toPgRankingString(wk)),
 
-    this.weeks.map((week) => {
-      const rankingMap = new Map<keyof PerGameStats, Team[]>();
+    // rankingMapsArray: rankingMapsArray.map((rm) => [...rm.entries()]),
+    // weightedRankMapsArr: weightedRankMap.map((rm) => [...rm.entries()]),
 
-      //Compare and sort teams based on stat
-      iterableRankingStatsPG.forEach((stat) => {
-        const rankedWeek = Array.from(week.values()).sort((a, b) => {
-          return comparePerGame(stat, a, b);
-        });
+    // rankMapArr: rankingMapsArray.map((mp) =>
+    //   Array.from(mp.entries()).map((e) => [e[0], toPgRankingString(e[1])])
+    // ),
 
-        rankingMap.set(stat, rankedWeek);
+    weightedrankMap: weightedRankMap.map((mp) =>
+      Array.from(mp.entries()).map((e) => [e[0], toPgRankingString(e[1])])
+    ),
+  };
+}
+
+/*
+ * Array of Weeks.
+ * Each week holds Array of stats
+ * Each stat hold all teams sorted by stat
+ */
+type RankMapArray = Map<keyof PerGameStats, Team[]>[];
+
+/**
+ * @param weeks Map of all Teams
+ * @returns RankMapArray
+ **/
+
+//Generate maps for each stat- map of ranking arrays, with RankableStat keys as key
+function createRankingMapArray(weeks: SeasonTeams[]) {
+  const rankingMapsArray: RankMapArray = [];
+
+  weeks.map((week) => {
+    const rankingMap = new Map<keyof PerGameStats, Team[]>();
+
+    //Compare and sort teams based on stat
+    iterableRankingStatsPG.forEach((stat) => {
+      const rankedWeek = Array.from(week.values()).sort((a, b) => {
+        return comparePerGame(stat, a, b);
       });
-
-      rankingMapsArray.push(rankingMap);
+      //TODO Consider deep cloning here
+      rankingMap.set(stat, structuredClone(rankedWeek));
+      // rankingMap.set(stat, rankedWeek);
     });
 
-    rankingMapsArray.forEach((rankMap) => {
-      Array.from(rankMap.entries()).forEach((e) => {
-        const stat = e[0];
-        const teams = e[1];
+    rankingMapsArray.push(rankingMap);
+  });
 
-        let rankingIndex = 0;
+  return rankingMapsArray;
+}
 
-        for (let i = 0; i < teams.length; ) {
-          const currentTeam = teams[i];
-          const statWeight = this.weights[e[0]] * rankingIndex;
+function weightRankMap(rankMapArray: RankMapArray, weights: StatWeights) {
+  const pgWeights = totalWeightsToPerGame(weights);
+  const weightedRankMap = structuredClone(rankMapArray);
 
-          if (!currentTeam.weight) currentTeam.weight = 0;
+  weightedRankMap.forEach((rankMap) => {
+    Array.from(rankMap.entries()).forEach((e) => {
+      const stat = e[0];
+      const teams = e[1];
 
-          currentTeam.weight += statWeight;
-          i++;
-          if (i < teams.length - 1) {
-            const nextTeam = teams[i];
+      let rankingIndex = 0;
 
-            const currentStat = currentTeam.stats.pgStats[stat];
-            const nextStat = nextTeam.stats.pgStats[stat];
+      for (let i = 0; i < teams.length; ) {
+        const currentTeam = teams[i];
+        //Multiply statWeight by index in array (rank), first place gets 0 weight
+        const statWeight = pgWeights[e[0]] * rankingIndex;
 
-            if (currentStat !== nextStat) {
-              rankingIndex = i;
-            }
+        if (!currentTeam.weight) currentTeam.weight = 0;
+        //Add to teams weight
+        //TODO consider accumulating weights in maps and then adding them later so weight maps can be viewed
+        // if (stat === "offPG" && j === 0) {
+        //   console.log(statWeight);
+        // }
+        currentTeam.weight += statWeight;
+        i++;
+        if (i < teams.length - 1) {
+          const currentStat = currentTeam.stats.pgStats[stat];
+          const nextStat = teams[i].stats.pgStats[stat];
+
+          if (currentStat !== nextStat) {
+            rankingIndex = i;
           }
-
-          // if (stat === "pointsAllowed") {
-          //   console.log(
-          //     `Weighted (${i}) ${currentTeam.school.abbreviation} ${currentTeam.stats.stats.pointsAllowed} as ${statWeight}`
-          //   );
-          // }
-
-          //Multiply statWeight by index in array (rank), first place gets 0 weight
-          //Could make it 1 for a different take on the ranking system
         }
+      }
+    });
+  });
+
+  return weightedRankMap;
+}
+
+function weightWeeks(weightedRankMap: RankMapArray, weeks: SeasonTeams[]) {
+  const weightedWeeks = structuredClone(weeks);
+
+  weightedRankMap.forEach((wkStat, i) => {
+    const weightedTeamMap = weightedWeeks[i];
+
+    wkStat.forEach((stat) => {
+      stat.forEach((team) => {
+        const tm = weightedTeamMap.get(team.id);
+
+        if (!tm) {
+          //Should be no missing teams
+          throw Error(`${team.school.abbreviation} not found in Season Teams`);
+        }
+
+        if (team.weight === undefined) {
+          //Should not be undefined here
+          throw Error(`${team.school.abbreviation} weight is undefined`);
+        }
+
+        if (tm.weight === undefined) {
+          //May be undefined as this is OG data structure
+          tm.weight = 0;
+        }
+
+        tm.weight += team.weight;
       });
     });
+  });
 
-    //Rank teams based on weighted stats
-    //TODO  need to reflect tied weights in rank
-    const weightedRankings: Team[][] = [];
+  return weightedWeeks;
+}
 
-    this.weeks.forEach((wk) => {
-      const rankedTeams = Array.from(wk.values()).sort((a, b) => {
-        const aWeight = a.weight ?? Number.MAX_SAFE_INTEGER;
-        const bWeight = b.weight ?? Number.MAX_SAFE_INTEGER;
-        return aWeight - bWeight;
-      });
-      weightedRankings.push(rankedTeams);
+function rankWeightedTeams(weeks: SeasonTeams[]) {
+  //Rank teams based on weighted stats
+  //TODO  need to reflect tied weights in rank
+  const weightedRankings: Team[][] = [];
+
+  weeks.forEach((wk) => {
+    const rankedTeams = Array.from(wk.values()).sort((a, b) => {
+      const aWeight = a.weight ?? Number.MAX_SAFE_INTEGER;
+      const bWeight = b.weight ?? Number.MAX_SAFE_INTEGER;
+      return aWeight - bWeight;
     });
+    weightedRankings.push(rankedTeams);
+  });
 
-    return {
-      weightedRankings,
-
-      rankMapArr: rankingMapsArray.map((mp) =>
-        Array.from(mp.entries()).map((e) => [e[0], toPgRankingString(e[1])])
-      ),
-
-      weeks: weightedRankings.map((wk) => toPgRankingString(wk)),
-    };
-  }
+  return weightedRankings;
 }

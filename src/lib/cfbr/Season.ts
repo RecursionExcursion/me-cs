@@ -1,8 +1,8 @@
 import { GameData } from "../../types/game";
-import { StatRanker } from "./ranking/StatRanker";
 import { StatWeights } from "../../types/stats";
 import { Team } from "../../types/Team";
 import { generateSeasonData } from "./data/dataRetrievalService";
+import { rankSeason } from "./ranking/StatRanker";
 import { StatCompiler } from "./StatCompiler";
 
 export type SeasonTeams = Map<number, Team>;
@@ -56,8 +56,7 @@ export class Season {
   }
 
   rankTeams(weights: StatWeights) {
-    const ranker = new StatRanker(this.compileStats(), weights);
-    return ranker.rankSeason();
+    return rankSeason(this.compileStats(), weights);
   }
 
   compileStats(stopWeek?: number) {

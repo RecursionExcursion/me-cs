@@ -25,7 +25,7 @@ export type PerGameStats = {
 export type StatWeights = TotalStats;
 export type PgStatWeights = PerGameStats;
 
-export const totalWeightsToPerGame = (weights: StatWeights): PerGameStats => {
+export const totalWeightsToPerGame = (weights: StatWeights): PgStatWeights => {
   return {
     offPG: weights.offense,
     defPG: weights.defense,

@@ -36,12 +36,12 @@ export const getStats = async (req: Request, res: Response) => {
 
 export async function getRankings(req: Request, res: Response) {
   const placeholderWeights: StatWeights = {
-    wins: 1,
-    losses: 0,
-    offense: 0,
-    defense: 0,
-    pointsAllowed: 0,
-    pointsFor: 0,
+    wins: 6,
+    losses: 6,
+    offense: 2,
+    defense: 2,
+    pointsAllowed: 3,
+    pointsFor: 3,
   };
 
   const rankings = await cfbrService.rankTeams(placeholderWeights);
