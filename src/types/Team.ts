@@ -52,13 +52,21 @@ export type SchoolLocation = {
 function createStats(): TeamStats {
   return {
     games: 0,
-    wins: 0,
-    losses: 0,
-    stats: {
+    totalStats: {
+      wins: 0,
+      losses: 0,
       offense: 0,
       defense: 0,
       pointsFor: 0,
       pointsAllowed: 0,
+    },
+    pgStats: {
+      winPG: 0,
+      lossPG: 0,
+      offPG: 0,
+      defPG: 0,
+      pfPG: 0,
+      paPG: 0,
     },
   };
 }

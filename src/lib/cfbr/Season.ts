@@ -1,5 +1,5 @@
 import { GameData } from "../../types/game";
-import { StatRanker } from "../old/cfbApi/StatRanker";
+import { StatRanker } from "./ranking/StatRanker";
 import { StatWeights } from "../../types/stats";
 import { Team } from "../../types/Team";
 import { generateSeasonData } from "./data/dataRetrievalService";
@@ -7,7 +7,6 @@ import { StatCompiler } from "./StatCompiler";
 
 export type SeasonTeams = Map<number, Team>;
 export type SeasonGames = Map<number, GameData>;
-// export type CachableTeams = Map<number, CachableTeam>;
 
 export class Season {
   #year: number;
@@ -24,22 +23,22 @@ export class Season {
     this.rankedWeeks = [];
   }
 
-  public static async CreateSeason(year: number) {
+  static async CreateSeason(year: number) {
     const { teamMap, gamesData } = await generateSeasonData(year);
     const season = new Season(year, teamMap, gamesData);
     return season;
   }
 
-  public getTeams = () => this.#teams;
-  public getGames = () => this.#games;
-  public getYear = () => this.#year;
-  public getWeeks = () => this.weeks;
-  public getWeek = (week: number) => this.weeks[week - 1];
-  public getRankedWeeks = () => this.rankedWeeks;
-  public getRankedWeek = (week: number) => this.rankedWeeks[week - 1];
-  public findTeamById = (id: number) => this.#teams.get(id);
-  public findGameById = (id: number) => this.#games.get(id);
-  public findTeamByName(search: string) {
+  getTeams = () => this.#teams;
+  getGames = () => this.#games;
+  getYear = () => this.#year;
+  getWeeks = () => this.weeks;
+  getWeek = (week: number) => this.weeks[week - 1];
+  getRankedWeeks = () => this.rankedWeeks;
+  getRankedWeek = (week: number) => this.rankedWeeks[week - 1];
+  findTeamById = (id: number) => this.#teams.get(id);
+  findGameById = (id: number) => this.#games.get(id);
+  findTeamByName(search: string) {
     const evaluate = (s: string): boolean => {
       if (!s) return false;
 
@@ -56,34 +55,13 @@ export class Season {
     });
   }
 
-  public toJson() {
-    return JSON.stringify({
-      teams: Array.from(this.#teams.entries()),
-      games: Array.from(this.#games.entries()),
-    });
+  rankTeams(weights: StatWeights) {
+    const ranker = new StatRanker(this.compileStats(), weights);
+    return ranker.rankSeason();
   }
 
-  //TODO pull out of this object
-  public rankTeams(weights: StatWeights) {
-    this.compileStats();
-    const ranker = new StatRanker(this.weeks, weights);
-    ranker.rankSeason();
-  }
-
-  compileStats() {
+  compileStats(stopWeek?: number) {
     const compiler = new StatCompiler(this.#teams, this.#games);
-    return compiler.compileStats();
-
-    //   const completedGames = Array.from(this.#games.values()).filter(
-    //   (g) => g.game.completed
-    // );
-
-    // this.weeks = [];
-
-    // for (let i = 1; i <= 2; i++) {
-    //   const weekGames = completedGames.filter((g) => g.game.week === i);
-    //   compileWeekStats(this.#teams, weekGames);
-    //   this.weeks.push(structuredClone(this.#teams));
-    // }
+    return compiler.compileStats(stopWeek);
   }
 }

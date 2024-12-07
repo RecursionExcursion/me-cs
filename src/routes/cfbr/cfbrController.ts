@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import cfbrService from "./cfbrService";
 import { cache } from "../../lib/cache/cachingService";
+import { StatWeights } from "../../types/stats";
 
 export const getTeams = async (req: Request, res: Response) => {
   const teams = await cfbrService.getAllTeams(2024);
@@ -13,8 +14,18 @@ export const getTeam = async (req: Request, res: Response) => {
 };
 
 export const getGame = async (req: Request, res: Response) => {
-  const game = await cfbrService.getGame(401628566, 2024);
+  const id = 401634305;
+  const game = await cfbrService.getGame(id, 2024);
   res.status(200).send(game);
+};
+
+export const getTeamGames = async (req: Request, res: Response) => {
+  const team = "Miami";
+  const year = 2024;
+
+  const games = await cfbrService.getTeamGames(team, year);
+
+  res.status(200).send(games);
 };
 
 export const getStats = async (req: Request, res: Response) => {
@@ -23,16 +34,20 @@ export const getStats = async (req: Request, res: Response) => {
   res.status(200).send(mappedWeeks);
 };
 
-// export async function getRankings(req: Request, res: Response) {
-//   const placeholderWeights: StatWeights = {
-//     offense: 1,
-//     defense: 1,
-//     pointsAllowed: 1,
-//     pointsFor: 1,
-//   };
+export async function getRankings(req: Request, res: Response) {
+  const placeholderWeights: StatWeights = {
+    wins: 1,
+    losses: 0,
+    offense: 0,
+    defense: 0,
+    pointsAllowed: 0,
+    pointsFor: 0,
+  };
 
-//   await cfbrService.rankTeams(placeholderWeights);
-// }
+  const rankings = await cfbrService.rankTeams(placeholderWeights);
+
+  res.status(200).send(rankings);
+}
 
 export const test = async (req: Request, res: Response) => {
   res.status(200).send(cache().load(2024));

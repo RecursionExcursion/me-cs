@@ -10,7 +10,7 @@ export async function fetchSeasonData(year: number) {
   const teams = await teamsRes.json();
 
   const stats = [];
-
+  
   for (let i = 1; i <= getLastWeekPlayed(games); i++) {
     const statsRes = await cfbRb.getStats(i);
     const statWk = await statsRes.json();

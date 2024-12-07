@@ -12,14 +12,24 @@ const cfbrService = {
     return season.findTeamByName(teamName);
   },
 
-  async getGame(gameId: number, year: 2024) {
+  async getTeamGames(teamName: string, year: number) {
+    const team = await this.getTeam(teamName, year);
+
+    if (!team) return [];
+
+    return Promise.all(
+      team.schedule.map(async (game) => await cfbrService.getGame(game, year))
+    );
+  },
+
+  async getGame(gameId: number, year: number) {
     const season = await Season.CreateSeason(year);
     return season.findGameById(gameId);
   },
 
   async rankTeams(weights: StatWeights) {
     const season = await Season.CreateSeason(2024);
-    season.rankTeams(weights);
+    return season.rankTeams(weights);
   },
 
   async getStats(year: number) {
@@ -28,17 +38,5 @@ const cfbrService = {
     return weeks;
   },
 };
-
-// const seasonCache = new Map<number, Season>();
-
-// async function getSeason(year: number): Promise<Season> {
-//   if (!seasonCache.has(year)) {
-//     console.log("No season found! Creating new season!");
-//     seasonCache.set(year, await Season.CreateSeason(year));
-//     console.log(`${year} season cached`);
-//   }
-//   console.log(`Retrieving ${2024} season`);
-//   return seasonCache.get(year)!;
-// }
 
 export default cfbrService;

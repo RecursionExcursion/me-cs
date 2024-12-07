@@ -80,9 +80,7 @@ async function addGamesToTeamSchedules(teams: SeasonTeams, games: SeasonGames) {
     const homeTeam = teams.get(game.home_id);
     const awayTeam = teams.get(game.away_id);
 
-    if (homeTeam && awayTeam) {
-      homeTeam.schedule.push(key);
-      awayTeam.schedule.push(key);
-    }
+    if (homeTeam) homeTeam.schedule.push(key);
+    if (awayTeam) awayTeam.schedule.push(key);
   }
 }
