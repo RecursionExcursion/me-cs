@@ -17,10 +17,10 @@ export function toTotalRankingString(teams: Team[]) {
   });
 }
 export function toPgRankingString(teams: Team[]) {
-  return teams.map((t, i) => {
+  return teams.map((t) => {
     const stats = t.stats.pgStats;
 
-    const rank = `(${i + 1})`;
+    const rank = `(${t.stats.auxStats.rank})`;
     const abbr = t.school.abbreviation;
     const weight = `[${t.weight}]`;
     const w = `W-${stats.winPG}`;

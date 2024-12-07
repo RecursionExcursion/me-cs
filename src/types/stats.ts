@@ -2,7 +2,7 @@ export type TeamStats = {
   games: number;
   totalStats: TotalStats;
   pgStats: PerGameStats;
-  auxStats?: AuxiliaryStats;
+  auxStats: AuxiliaryStats;
 };
 
 export type TotalStats = {

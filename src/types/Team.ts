@@ -68,5 +68,10 @@ function createStats(): TeamStats {
       pfPG: 0,
       paPG: 0,
     },
+    auxStats: {
+      pollInertia: -1,
+      rank: -1,
+      strengthOfSchedule: -1,
+    },
   };
 }

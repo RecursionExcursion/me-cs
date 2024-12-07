@@ -16,18 +16,22 @@ export function algo2(weeks: SeasonTeams[], weights: StatWeights) {
   weekClone.forEach((st, weekIndex) => {
     const rankMap = createRankingMap(st);
     const weightedRankMap = weightRankMap(rankMap, weights);
-    const weightedWeeks = weightWeek(weightedRankMap, structuredClone(weekClone), weekIndex);
-    const weightedAndRankedWeeks = rankWeightedWeek(weightedWeeks);
+    const weightedWeeks = weightWeek(
+      weightedRankMap,
+      structuredClone(weekClone),
+      weekIndex
+    );
+    const weightedAndRankedWeek = rankWeightedWeek(weightedWeeks);
 
     //Eval Poll inertia
-    // evalPI(weightedAndRankedWeeks, weekClone, weekIndex)
+    evalPI(weightedAndRankedWeek, weekClone, weekIndex, teamArr);
+    // PI is now set
 
     //Calc and evel SS
 
     //Run thru again?
 
-
-    teamArr.push(weightedAndRankedWeeks);
+    teamArr.push(weightedAndRankedWeek);
   });
 
   return { teamArr };
@@ -41,10 +45,14 @@ function createRankingMap(week: SeasonTeams): RankMap {
   //Compare and sort teams based on stat
   iterableRankingStatsPG.forEach((stat) => {
     const rankedWeek = Array.from(week.values()).sort((a, b) => {
-      return compareStats("pgStats",stat, a, b);
+      return compareStats("pgStats", stat, a, b);
     });
     //TODO Consider deep cloning here
-    rankingMap.set(stat, structuredClone(rankedWeek));
+    const weekClone = structuredClone(rankedWeek);
+    //Rank stat clones?
+    // setRankByWeight(weekClone);
+    rankingMap.set(stat, weekClone);
+
     // rankingMap.set(stat, rankedWeek);
   });
   return rankingMap;
@@ -88,9 +96,6 @@ function weightWeek(
   weeks: SeasonTeams[],
   weekIndex: number
 ) {
-
-
-  //   weightedRankMap.forEach((wkStat, i) => {
   const weightedTeamMap = weeks[weekIndex];
 
   weightedRankMap.forEach((stat) => {
@@ -119,20 +124,58 @@ function weightWeek(
 }
 
 function rankWeightedWeek(week: SeasonTeams) {
-  //Rank teams based on weighted stats
-  //TODO  need to reflect tied weights in rank
-  //   const weightedRankings: Team[][] = [];
-
-  //   weeks.forEach((wk) => {
-  return Array.from(week.values()).sort((a, b) => {
+  const teams = Array.from(week.values()).sort((a, b) => {
     const aWeight = a.weight ?? Number.MAX_SAFE_INTEGER;
     const bWeight = b.weight ?? Number.MAX_SAFE_INTEGER;
     return aWeight - bWeight;
   });
-  //   weightedRankings.push(rankedTeams);
-  //   return weightedRankings;
+
+  setRankByWeight(teams);
+
+  return teams;
 }
 
-// function evalPI(rankedWeeks:Team[], weeks: SeasonTeams[], weekIndex:number){
+function evalPI(
+  rankedWeek: Team[],
+  weeks: SeasonTeams[],
+  weekIndex: number,
+  teams: Team[][]
+) {
+  if (weekIndex === 0) {
+    return;
+  }
 
-// }
+  const prevWeek = teams[teams.length - 1];
+
+  prevWeek.forEach((pTeam) => {
+    const currTeam = rankedWeek.find((rTeam) => rTeam.id === pTeam.id);
+
+    if (currTeam === undefined) {
+      throw Error(`${pTeam.school.abbreviation} could not be found`);
+    }
+    //TODO here is where the multiplier is added
+    currTeam.stats.auxStats.pollInertia = pTeam.stats.auxStats.rank;
+  });
+
+  // const prevWeek = teams[weekIndex - 1];
+}
+
+function setRankByWeight(teams: Team[]) {
+  for (let i = 0, rank = 1; i < teams.length; i++) {
+    const currTeam = teams[i];
+
+    if (i === 0) {
+      currTeam.stats.auxStats.rank = rank;
+      continue;
+    }
+
+    const prevTeam = teams[i - 1];
+
+    if (prevTeam.weight !== currTeam.weight) {
+      rank = i + 1;
+    }
+    currTeam.stats.auxStats.rank = rank;
+  }
+
+  return teams;
+}
