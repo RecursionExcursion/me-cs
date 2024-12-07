@@ -2,6 +2,7 @@ export type TeamStats = {
   games: number;
   totalStats: TotalStats;
   pgStats: PerGameStats;
+  auxStats?: AuxiliaryStats;
 };
 
 export type TotalStats = {
@@ -20,6 +21,12 @@ export type PerGameStats = {
   defPG: number;
   pfPG: number;
   paPG: number;
+};
+
+export type AuxiliaryStats = {
+  rank: number;
+  pollInertia: number;
+  strengthOfSchedule: number;
 };
 
 export type StatWeights = TotalStats;
@@ -53,3 +60,5 @@ export const iterableRankingStatsPG: (keyof PerGameStats)[] = [
   "winPG",
   "lossPG",
 ];
+
+
