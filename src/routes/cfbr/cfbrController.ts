@@ -13,6 +13,11 @@ export const getTeam = async (req: Request, res: Response) => {
   res.status(200).send(team);
 };
 
+export const getGames = async (req: Request, res: Response) => {
+  const games = await cfbrService.getAllGames(2024);
+  return res.status(200).send([...games.entries()]);
+};
+
 export const getGame = async (req: Request, res: Response) => {
   const id = 401634305;
   const game = await cfbrService.getGame(id, 2024);

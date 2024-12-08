@@ -7,11 +7,13 @@ import {
   getTeamGames,
   getTeams,
   test,
+  getGames,
 } from "./cfbrController";
 
 const router = express.Router();
 
 router.get("/teams", getTeams);
+router.get("/games", getGames);
 router.get("/team", getTeam);
 router.get("/teamGames", getTeamGames);
 router.get("/game", getGame);

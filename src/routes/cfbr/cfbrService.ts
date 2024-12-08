@@ -7,6 +7,11 @@ const cfbrService = {
     return season.getTeams();
   },
 
+  async getAllGames(year: number) {
+    const season = await Season.CreateSeason(year);
+    return season.getGames();
+  },
+
   async getTeam(teamName: string, year: number) {
     const season = await Season.CreateSeason(year);
     return season.findTeamByName(teamName);

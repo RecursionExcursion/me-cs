@@ -1,11 +1,3 @@
-import test from "node:test";
-import assert from "node:assert";
+import "./tests/ranking.test";
+import "./tests/season.test";
 
-
-
-
-import "./subtests/subtest.test"
-
-test("should be 1", () => {
-  assert.strictEqual(1, 1);
-});
