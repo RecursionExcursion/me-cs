@@ -56,7 +56,7 @@ export class Season {
   }
 
   rankTeams(weights: StatWeights) {
-    return rankSeason(this.compileStats(), weights);
+    return rankSeason(this.compileStats(), weights, this);
   }
 
   compileStats(stopWeek?: number) {

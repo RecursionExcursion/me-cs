@@ -18,18 +18,21 @@ export function toTotalRankingString(teams: Team[]) {
 }
 export function toPgRankingString(teams: Team[]) {
   return teams.map((t) => {
-    const stats = t.stats.pgStats;
+    const pgStats = t.stats.pgStats;
+    const auxStats = t.stats.auxStats;
 
-    const rank = `(${t.stats.auxStats.rank})`;
+    const rank = `(${t.stats.rank})`;
     const abbr = t.school.abbreviation;
     const weight = `[${t.weight}]`;
-    const w = `W-${stats.winPG}`;
-    const l = `L-${stats.lossPG}`;
-    const off = `Off-${stats.offPG}`;
-    const def = `Def-${stats.defPG}`;
-    const pf = `PF-${stats.pfPG}`;
-    const pa = `PA-${stats.paPG}`;
+    const w = `W-${pgStats.winPG}`;
+    const l = `L-${pgStats.lossPG}`;
+    const off = `Off-${pgStats.offPG}`;
+    const def = `Def-${pgStats.defPG}`;
+    const pf = `PF-${pgStats.pfPG}`;
+    const pa = `PA-${pgStats.paPG}`;
+    const pi = `PI-${auxStats.pollInertia}`
+    const ss = `SS-${auxStats.strengthOfSchedule}`
 
-    return [rank, abbr, weight, w, l, off, def, pf, pa].join(" ");
+    return [rank, abbr, weight, w, l, off, def, pf, pa, pi, ss].join(" ");
   });
 }

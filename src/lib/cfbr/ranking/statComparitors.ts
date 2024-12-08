@@ -1,7 +1,7 @@
 import { AuxiliaryStats, PerGameStats, TotalStats } from "../../../types/stats";
 import { Team } from "../../../types/Team";
 
-type StatType = "totalStats" | "pgStats" | "auxStats";
+export type StatType = "totalStats" | "pgStats" | "auxStats";
 
 export function compareStats(
   statType: StatType,
@@ -16,7 +16,7 @@ export function compareStats(
       "losses"
     ),
     pgStats: new Array<keyof PerGameStats>("defPG", "paPG", "lossPG"),
-    auxStats: new Array<keyof AuxiliaryStats>(),
+    auxStats: new Array<keyof AuxiliaryStats>("pollInertia", "strengthOfSchedule"),
   };
 
   const aStats = teamA.stats[statType];

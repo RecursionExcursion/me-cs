@@ -11,5 +11,5 @@ export function getLastWeekPlayed(games: Game[]) {
   return latestCompletedWeek;
 }
 
-export const round = (val: number, digets: number) =>
-  parseFloat(val.toFixed(digets));
+export const round = (val: number, digits: number) =>
+  parseFloat(val.toFixed(digits));

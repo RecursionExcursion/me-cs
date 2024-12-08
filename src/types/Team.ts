@@ -52,6 +52,7 @@ export type SchoolLocation = {
 function createStats(): TeamStats {
   return {
     games: 0,
+    rank: -1,
     totalStats: {
       wins: 0,
       losses: 0,
@@ -70,7 +71,6 @@ function createStats(): TeamStats {
     },
     auxStats: {
       pollInertia: -1,
-      rank: -1,
       strengthOfSchedule: -1,
     },
   };

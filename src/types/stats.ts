@@ -1,4 +1,5 @@
 export type TeamStats = {
+  rank: number;
   games: number;
   totalStats: TotalStats;
   pgStats: PerGameStats;
@@ -24,13 +25,12 @@ export type PerGameStats = {
 };
 
 export type AuxiliaryStats = {
-  rank: number;
   pollInertia: number;
   strengthOfSchedule: number;
 };
 
-export type StatWeights = TotalStats;
-export type PgStatWeights = PerGameStats;
+export type StatWeights = TotalStats & AuxiliaryStats;
+export type PgStatWeights = PerGameStats & AuxiliaryStats;
 
 export const totalWeightsToPerGame = (weights: StatWeights): PgStatWeights => {
   return {
@@ -40,6 +40,8 @@ export const totalWeightsToPerGame = (weights: StatWeights): PgStatWeights => {
     paPG: weights.pointsAllowed,
     winPG: weights.wins,
     lossPG: weights.losses,
+    pollInertia: weights.pollInertia,
+    strengthOfSchedule: weights.strengthOfSchedule,
   };
 };
 
@@ -52,7 +54,7 @@ export const iterableRankingStats: (keyof TotalStats)[] = [
   "losses",
 ];
 
-export const iterableRankingStatsPG: (keyof PerGameStats)[] = [
+export const iterablePGStats: (keyof PerGameStats)[] = [
   "offPG",
   "defPG",
   "paPG",
@@ -61,4 +63,7 @@ export const iterableRankingStatsPG: (keyof PerGameStats)[] = [
   "lossPG",
 ];
 
-
+export const iterableAuxStats: (keyof AuxiliaryStats)[] = [
+  "pollInertia",
+  "strengthOfSchedule",
+];
