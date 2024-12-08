@@ -2,7 +2,7 @@ import { PgStatWeights } from "../../../../types/stats";
 import { Team } from "../../../../types/Team";
 import { Season, SeasonTeams } from "../../Season";
 import { createWeightedRankMap, RankMap } from "./rankMap";
-import { setAuxStats } from "./setauxStats";
+import { setAuxStats } from "./setAuxStats";
 import { getWeightedWeeks } from "./weight";
 
 export function algo2(
