@@ -51,7 +51,28 @@ export async function getRankings(req: Request, res: Response) {
     strengthOfSchedule: 1,
   };
 
-  const rankings = await cfbrService.rankTeams(placeholderWeights);
+  const courtWeights: StatWeights = {
+    wins: 4,
+    losses: 4,
+    offense: 3,
+    defense: 3,
+    pointsAllowed: 2,
+    pointsFor: 2,
+    pollInertia: 3,
+    strengthOfSchedule: 4,
+  };
+  const ryanWeights: StatWeights = {
+    wins: .9,
+    losses: 1.3,
+    offense: .5,
+    defense: .5,
+    pointsAllowed: .7,
+    pointsFor: .7,
+    pollInertia: .7,
+    strengthOfSchedule: .7,
+  };
+
+  const rankings = await cfbrService.rankTeams(ryanWeights);
 
   res.status(200).send(rankings);
 }

@@ -24,7 +24,7 @@ const g1 = createEmptyGame({
     awayId: 2,
   },
   stats: {
-    week: 0,
+    week: 1,
     homeScore: 5,
     awayScore: 4,
     homeYards: 100,
@@ -39,7 +39,7 @@ const g2 = createEmptyGame({
     awayId: 4,
   },
   stats: {
-    week: 0,
+    week: 1,
     homeScore: 3,
     awayScore: 2,
     homeYards: 75,
@@ -56,7 +56,7 @@ const g3 = createEmptyGame({
     awayId: 3,
   },
   stats: {
-    week: 1,
+    week: 2,
     homeScore: 6,
     awayScore: 4,
     homeYards: 100,
@@ -71,7 +71,7 @@ const g4 = createEmptyGame({
     awayId: 4,
   },
   stats: {
-    week: 1,
+    week: 2,
     homeScore: 2,
     awayScore: 1,
     homeYards: 50,

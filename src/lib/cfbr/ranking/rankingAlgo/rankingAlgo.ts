@@ -5,49 +5,43 @@ import { createWeightedRankMap, RankMap } from "./rankMap";
 import { setAuxStats } from "./setAuxStats";
 import { getWeightedWeeks } from "./weight";
 
-export function algo2(
+/* Ranking Algorithim
+ * Compiles feilds into seperate maps (Rank Maps) for each week.
+ * Theses maps are sorted based on the stat.
+ * Def stats are inc, Off stats are dec.
+ * Poll Intertia and Schedule strength are inc.
+ */
+
+export function rankingAlgo(
   weeks: SeasonTeams[],
   weights: PgStatWeights,
   season: Season
 ) {
   const weekClone = structuredClone(weeks);
 
-  const teamArr: Team[][] = [];
-  const rmps: RankMap[] = [];
+  const teams: Team[][] = [];
+  const OgRnkMps: RankMap[] = [];
+  const rnkmps: RankMap[] = [];
 
   weekClone.forEach((st, weekIndex) => {
-    const weightedRankMap = createWeightedRankMap(st, weights, false);
+    setAuxStats([...st.values()], teams, weekIndex, season);
+
+    const weightedRankMap = createWeightedRankMap(st, weights, true);
+
+    OgRnkMps.push(weightedRankMap);
 
     const weightedWeeks = getWeightedWeeks(
       weightedRankMap,
       structuredClone(weekClone),
       weekIndex
     );
-    //Rank teams without aux stats
+
     setRankByWeight(weightedWeeks);
-    //Set aux stats based off last weeks rankings
-    setAuxStats(weightedWeeks, teamArr, weekIndex, season);
 
-    //WST back to ST map
-    const newST: SeasonTeams = new Map(weightedWeeks.map((t) => [t.id, t]));
-
-    //Run thru again
-    const weightedRankMap2 = createWeightedRankMap(newST, weights, true);
-
-    rmps.push(weightedRankMap2);
-
-    const weightedWeeks2 = getWeightedWeeks(
-      weightedRankMap2,
-      structuredClone(weekClone),
-      weekIndex
-    );
-
-    setRankByWeight(weightedWeeks2);
-
-    teamArr.push(weightedWeeks2);
+    teams.push(weightedWeeks);
   });
 
-  return { teamArr, rmps };
+  return { rankings: teams, rnkmps, OgRnkMps };
 }
 
 function setRankByWeight(teams: Team[]) {

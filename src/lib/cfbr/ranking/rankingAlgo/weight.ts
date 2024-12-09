@@ -1,3 +1,4 @@
+import { round } from "../../../util/helpers";
 import { SeasonTeams } from "../../Season";
 import { RankMap } from "./rankMap";
 
@@ -38,6 +39,7 @@ function weightWeek(
       tm.stats.auxStats = team.stats.auxStats;
 
       tm.weight += team.weight;
+      tm.weight = round(tm.weight, 2);
     });
   });
   return weightedTeamMap;

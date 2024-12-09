@@ -18,14 +18,14 @@ test("Fetch season test", async (t) => {
   await t.test("Game", async (r) => {
     const game1 = season.findGameById(10);
 
-    await r.test("ids", async (q) => {
-      await q.test("gameId", () => {
+    await r.test("ids", async (s) => {
+      await s.test("gameId", () => {
         assert.strictEqual(game1?.id, mGames.g1.id);
       });
-      await q.test("homeId", () => {
+      await s.test("homeId", () => {
         assert.strictEqual(game1?.game.home_id, mGames.g1.game.home_id);
       });
-      await q.test("awayId", () => {
+      await s.test("awayId", () => {
         assert.strictEqual(game1?.game.away_id, mGames.g1.game.away_id);
       });
     });
@@ -34,5 +34,13 @@ test("Fetch season test", async (t) => {
       assert.strictEqual(game1?.game.away_points, mGames.g1.game.away_points);
       assert.strictEqual(game1?.game.home_points, mGames.g1.game.home_points);
     });
+  });
+
+  await t.test("Team Games", async () => {
+    const teamB = season.findTeamByName("B");
+
+    assert.strictEqual(teamB?.id, mTeams.teamB.id);
+    if (!teamB) throw Error("TeamB cannot be undefined");
+    assert.deepStrictEqual(teamB.schedule, [mGames.g1.id, mGames.g4.id]);
   });
 });

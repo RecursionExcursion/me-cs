@@ -30,8 +30,6 @@ export async function generateSeasonData(year: number) {
 
   const teamMap = mapToTeams(teams);
   const gamesData = await mapToGameData(games, stats as GameStats[][]);
-  addGamesToTeamSchedules(teamMap, gamesData);
-
   return { teamMap, gamesData };
 }
 
@@ -72,15 +70,4 @@ async function mapToGameData(
       seasonGames.set(gameData.id, gameData);
     });
   return seasonGames;
-}
-
-async function addGamesToTeamSchedules(teams: SeasonTeams, games: SeasonGames) {
-  for (const [key, val] of games.entries()) {
-    const game = val.game;
-    const homeTeam = teams.get(game.home_id);
-    const awayTeam = teams.get(game.away_id);
-
-    if (homeTeam) homeTeam.schedule.push(key);
-    if (awayTeam) awayTeam.schedule.push(key);
-  }
 }

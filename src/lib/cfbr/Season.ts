@@ -21,6 +21,7 @@ export class Season {
     this.#games = games;
     this.weeks = [];
     this.rankedWeeks = [];
+    this.#addGamesToTeamSchedules(teams, games);
   }
 
   static async CreateSeason(year: number) {
@@ -29,13 +30,26 @@ export class Season {
     return season;
   }
 
+  #addGamesToTeamSchedules(teams: SeasonTeams, games: SeasonGames) {
+    for (const [key, val] of games.entries()) {
+      const game = val.game;
+      const homeTeam = teams.get(game.home_id);
+      const awayTeam = teams.get(game.away_id);
+
+      if (homeTeam) homeTeam.schedule.push(key);
+      if (awayTeam) awayTeam.schedule.push(key);
+    }
+  }
+
   getTeams = () => this.#teams;
   getGames = () => this.#games;
   getYear = () => this.#year;
   getWeeks = () => this.weeks;
+
   getWeek = (week: number) => this.weeks[week - 1];
   getRankedWeeks = () => this.rankedWeeks;
   getRankedWeek = (week: number) => this.rankedWeeks[week - 1];
+  
   findTeamById = (id: number) => this.#teams.get(id);
   findGameById = (id: number) => this.#games.get(id);
   findTeamByName(search: string) {

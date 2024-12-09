@@ -75,7 +75,7 @@ function weightRankMap(rankMap: RankMap, pgWeights: PgStatWeights) {
     const stat = e[0];
     const teams = e[1];
 
-    let rankingIndex = 0;
+    let rankingIndex = 1;
 
     for (let i = 0; i < teams.length; ) {
       const currentTeam = teams[i];
@@ -92,7 +92,7 @@ function weightRankMap(rankMap: RankMap, pgWeights: PgStatWeights) {
         const { currentStat, nextStat } = getStats(stat, currentTeam, teams[i]);
 
         if (currentStat !== nextStat) {
-          rankingIndex = i;
+          rankingIndex = i + 1;
         }
       }
     }

@@ -1,3 +1,3 @@
-import "./tests/ranking.test";
 import "./tests/season.test";
+import "./tests/ranking.test";
 

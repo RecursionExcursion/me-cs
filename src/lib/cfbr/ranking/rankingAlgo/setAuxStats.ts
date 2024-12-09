@@ -8,19 +8,14 @@ export function setAuxStats(
   weekIndex: number,
   season: Season
 ) {
-  setPollIntertia(rankedWeek, teams, weekIndex);
-  setStrengthOfSchedule(rankedWeek, season);
-}
-
-function setPollIntertia(
-  rankedWeek: Team[],
-  teams: Team[][],
-  weekIndex: number
-) {
   if (weekIndex === 0) {
     return;
   }
+  setPollIntertia(rankedWeek, teams);
+  setStrengthOfSchedule(rankedWeek, season);
+}
 
+function setPollIntertia(rankedWeek: Team[], teams: Team[][]) {
   const prevWeek = teams[teams.length - 1];
 
   prevWeek.forEach((pTeam) => {
@@ -41,7 +36,8 @@ function setStrengthOfSchedule(rankedWeek: Team[], season: Season) {
     const playedGameIds = team.schedule.slice(0, numberOfGamesPlayed);
 
     let totalOppWins = 0;
-    let totalOppRank = 0;
+    let totalOppLosses = 0;
+    // let totalOppRank = 0;
 
     playedGameIds.forEach((pgId) => {
       const game = season.findGameById(pgId);
@@ -59,18 +55,30 @@ function setStrengthOfSchedule(rankedWeek: Team[], season: Season) {
 
       if (oppTeam) {
         totalOppWins += oppTeam.stats.totalStats.wins;
-        totalOppRank += oppTeam.stats.rank;
+        totalOppLosses += oppTeam.stats.totalStats.losses;
+        // totalOppRank += oppTeam.stats.rank;
       } else {
         //Lower div school
         totalOppWins += 0;
-        totalOppRank += rankedWeek.length;
+        totalOppLosses += 0;
+        // totalOppRank += rankedWeek.length;
       }
     });
 
-    const ssRank = totalOppRank / numberOfGamesPlayed;
-    const ssWins = totalOppWins / numberOfGamesPlayed;
-    const adjustedWins = 1 - ssWins;
-    const harmonicMean = (2 * ssRank * adjustedWins) / (ssRank + ssWins);
-    team.stats.auxStats.strengthOfSchedule = round(harmonicMean, 2);
+    // const ssRank = totalOppRank;
+
+    const ssWins =
+      1 -
+      (() => {
+        if (totalOppLosses === 0 && totalOppWins === 0) return 0;
+        if (totalOppLosses === 0) return 1;
+        return totalOppWins / totalOppLosses;
+      })();
+    // if (ssWins === 0) throw Error("Boobs");
+
+    team.stats.auxStats.strengthOfSchedule = round(
+      ssWins / numberOfGamesPlayed,
+      4
+    );
   });
 }
